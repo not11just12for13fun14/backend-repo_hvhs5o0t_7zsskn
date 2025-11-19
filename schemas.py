@@ -11,10 +11,8 @@ Model name is converted to lowercase for the collection name:
 - BlogPost -> "blogs" collection
 """
 
-from pydantic import BaseModel, Field
-from typing import Optional
-
-# Example schemas (replace with your own):
+from pydantic import BaseModel, Field, HttpUrl, EmailStr
+from typing import Optional, List
 
 class User(BaseModel):
     """
@@ -22,8 +20,8 @@ class User(BaseModel):
     Collection name: "user" (lowercase of class name)
     """
     name: str = Field(..., description="Full name")
-    email: str = Field(..., description="Email address")
-    address: str = Field(..., description="Address")
+    email: EmailStr = Field(..., description="Email address")
+    address: Optional[str] = Field(None, description="Address")
     age: Optional[int] = Field(None, ge=0, le=120, description="Age in years")
     is_active: bool = Field(True, description="Whether user is active")
 
@@ -36,7 +34,36 @@ class Product(BaseModel):
     description: Optional[str] = Field(None, description="Product description")
     price: float = Field(..., ge=0, description="Price in dollars")
     category: str = Field(..., description="Product category")
+    images: List[HttpUrl] = Field(default_factory=list, description="Image URLs")
     in_stock: bool = Field(True, description="Whether product is in stock")
+    featured: bool = Field(False, description="Feature on homepage")
+
+class DistributorApplication(BaseModel):
+    """
+    Distributors collection schema
+    Collection name: "distributorapplication" -> use as lead capture for distributor partners
+    """
+    name: str = Field(..., description="Applicant full name")
+    email: EmailStr = Field(..., description="Contact email")
+    company: Optional[str] = Field(None, description="Company or brand")
+    website: Optional[HttpUrl] = Field(None, description="Company website")
+    location: Optional[str] = Field(None, description="City/Country")
+    message: Optional[str] = Field(None, description="Additional details")
+
+class OrderItem(BaseModel):
+    product_id: str
+    title: str
+    quantity: int = Field(..., ge=1)
+    price: float = Field(..., ge=0)
+    image: Optional[HttpUrl] = None
+
+class CheckoutRequest(BaseModel):
+    items: List[OrderItem]
+    customer_name: str
+    customer_email: EmailStr
+    address: str
+    city: str
+    country: str
 
 # Add your own schemas here:
 # --------------------------------------------------
